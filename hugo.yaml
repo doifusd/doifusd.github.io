@@ -7,24 +7,25 @@ copyright: Example Person
 # Theme i18n support
 # Available values: ar, bn, ca, de, el, en, es, fr, hu, id, it, ja, ko, nl, pt-br, th, uk, zh-cn, zh-hk, zh-tw
 DefaultContentLanguage: zh-cn
+# DefaultContentLanguage: en
 
 # Set hasCJKLanguage to true if DefaultContentLanguage is in [zh-cn ja ko]
 # This will make .Summary and .WordCount behave correctly for CJK languages.
 hasCJKLanguage: false
 
 languages:
-  en:
-    languageName: English
-    title: Example Site
-    weight: 2
-    params:
-      description: Example description
+  # en:
+  #   languageName: English
+  #   title: doifusd's blog
+  #   weight: 2
+  #   params:
+  #     description: notebook
   zh-cn:
     languageName: 中文
-    title: 演示站点
+    title: doifusd的博客
     weight: 1
     params:
-      description: 演示说明
+      description: 笔记本
 services:
   # Change it to your Disqus shortname before using
   disqus:
@@ -57,7 +58,7 @@ params:
 
   sidebar:
     emoji: 🍥
-    subtitle: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    subtitle: 生活笔记本
     avatar:
       enabled: true
       local: true
@@ -107,19 +108,19 @@ params:
       autoCreateIssue: false
 
     # Waline client configuration see: https://waline.js.org/en/reference/component.html
-    waline:
-      serverURL:
-      lang:
-      pageview:
-      emoji:
-        - https://unpkg.com/@waline/emojis@1.0.1/weibo
-      requiredMeta:
-        - name
-        - email
-        - url
-      locale:
-        admin: Admin
-        placeholder:
+    # waline:
+    #   serverURL:
+    #   lang:
+    #   pageview:
+    #   emoji:
+    #     - https://unpkg.com/@waline/emojis@1.0.1/weibo
+    #   requiredMeta:
+    #     - name
+    #     - email
+    #     - url
+    #   locale:
+    #     admin: Admin
+    #     placeholder:
 
     twikoo:
       envId:
@@ -201,12 +202,33 @@ params:
 ### See https://stack.jimmycai.com/config/menu
 ### To remove about, archive and search page menu item, remove `menu` field from their FrontMatter
 menu:
-  main: []
+  # main: []
+  main:
+    - name: 主页
+      pageRef: /
+      weight: 10
+      identifier: home
+    - name: 搜索
+      pageRef: /search
+      weight: 20
+      identifier: search
+    - name: 归档
+      pageRef: /archives
+      weight: 30
+      identifier: archives
+    - name: 地址
+      pageRef: /links
+      weight: 40
+      identifier: link
+    - name: 关于
+      pageRef: /about
+      weight: 50
+      identifier: about
 
   social:
     - identifier: github
       name: GitHub
-      url: https://github.com/CaiJimmy/hugo-theme-stack
+      url: https://github.com/doifusd
       params:
         icon: brand-github
 
@@ -229,18 +251,18 @@ related:
 
 markup:
   goldmark:
-    extensions:
-      passthrough:
-        enable: true
-        delimiters:
-          block:
-            - - \[
-              - \]
-            - - $$
-              - $$
-          inline:
-            - - \(
-              - \)
+    # extensions:
+    # passthrough:
+    #   enable: true
+    #   delimiters:
+    #     block:
+    #       - - \[
+    #         - \]
+    #       - - $$
+    #         - $$
+    #     inline:
+    #       - - \(
+    #         - \)
     renderer:
       ## Set to true if you have HTML content inside Markdown
       unsafe: true
