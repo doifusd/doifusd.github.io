@@ -1,0 +1,5 @@
+.gitmodules
+.hugo_build.lock
+public/
+resources/
+go.mod
