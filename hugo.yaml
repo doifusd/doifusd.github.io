@@ -13,19 +13,19 @@ DefaultContentLanguage: zh-cn
 # This will make .Summary and .WordCount behave correctly for CJK languages.
 hasCJKLanguage: false
 
-languages:
-  # en:
-  #   languageName: English
-  #   title: doifusd's blog
-  #   weight: 2
-  #   params:
-  #     description: notebook
-  zh-cn:
-    languageName: 中文
-    title: doifusd的博客
-    weight: 1
-    params:
-      description: 笔记本
+# languages:
+# en:
+#   languageName: English
+#   title: doifusd's blog
+#   weight: 2
+#   params:
+#     description: notebook
+# zh-cn:
+#   languageName: 中文
+#   title: doifusd的博客
+#   weight: 1
+#   params:
+#     description: 笔记本
 services:
   # Change it to your Disqus shortname before using
   disqus:
@@ -202,28 +202,35 @@ params:
 ### See https://stack.jimmycai.com/config/menu
 ### To remove about, archive and search page menu item, remove `menu` field from their FrontMatter
 menu:
-  # main: []
   main:
-    - name: 主页
-      pageRef: /
-      weight: 10
-      identifier: home
-    - name: 搜索
-      pageRef: /search
-      weight: 20
-      identifier: search
-    - name: 归档
-      pageRef: /archives
-      weight: 30
-      identifier: archives
-    - name: 地址
-      pageRef: /links
-      weight: 40
-      identifier: link
-    - name: 关于
-      pageRef: /about
-      weight: 50
-      identifier: about
+    []
+    # - identifier: archive
+    # - name: 归档
+    #   url: /archives
+    #   weight: 10
+    #   params:
+    #     icon: archives
+    #     newTab: true
+  # - name: 主页
+  #   pageRef: /
+  #   weight: 10
+  #   identifier: home
+  # - name: 搜索
+  #   pageRef: /search
+  #   weight: 20
+  #   identifier: search
+  # - name: 归档
+  #   pageRef: /archives
+  #   weight: 30
+  #   identifier: archives
+  # - name: 地址
+  #   pageRef: /links
+  #   weight: 40
+  #   identifier: link
+  # - name: 关于
+  #   pageRef: /about
+  #   weight: 50
+  #   identifier: about
 
   social:
     - identifier: github
