@@ -2,7 +2,8 @@ baseurl: https://doifusd.github.io/
 languageCode: zh-cn
 theme: stack
 title: doifusd's blog
-copyright: Example Person
+copyright: Powered by Hugo and stack theme
+
 
 # Theme i18n support
 # Available values: ar, bn, ca, de, el, en, es, fr, hu, id, it, ja, ko, nl, pt-br, th, uk, zh-cn, zh-hk, zh-tw
@@ -57,8 +58,8 @@ params:
     lastUpdated: Jan 02, 2006 15:04 MST
 
   sidebar:
-    emoji: 🍥
-    subtitle: 生活笔记本
+    emoji: 🍃
+    subtitle: 遇事不决，可问春风；春风不语，即随本心。
     avatar:
       enabled: true
       local: true

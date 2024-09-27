@@ -29,9 +29,6 @@ Hugo ships with several [Built-in Shortcodes](https://gohugo.io/content-manageme
 
 ---
 
-## Vimeo Simple Shortcode
-
-{{< vimeo_simple 48912912 >}}
 
 ## bilibilibi Shortcode
 
