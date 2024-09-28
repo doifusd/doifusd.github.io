@@ -204,34 +204,41 @@ params:
 ### To remove about, archive and search page menu item, remove `menu` field from their FrontMatter
 menu:
   main:
-    []
-    # - identifier: archive
-    # - name: 归档
-    #   url: /archives
-    #   weight: 10
-    #   params:
-    #     icon: archives
-    #     newTab: true
-  # - name: 主页
-  #   pageRef: /
-  #   weight: 10
-  #   identifier: home
-  # - name: 搜索
-  #   pageRef: /search
-  #   weight: 20
-  #   identifier: search
-  # - name: 归档
-  #   pageRef: /archives
-  #   weight: 30
-  #   identifier: archives
-  # - name: 地址
-  #   pageRef: /links
-  #   weight: 40
-  #   identifier: link
-  # - name: 关于
-  #   pageRef: /about
-  #   weight: 50
-  #   identifier: about
+   - name: 主页
+     url: /
+     weight: 10
+     identifier: home
+     params:
+        icon: home
+        newTab: false
+   - name: 搜索
+     url: /search
+     weight: 20
+     identifier: search
+     params:
+       icon: search
+       newTab: false
+   - name: 归档
+     url: /archives
+     weight: 30
+     identifier: archives
+     params:
+        icon: archives
+        newTab: false
+   - name: 联系地址
+     pageRef: /links
+     weight: 40
+     identifier: link
+     params:
+       icon: link
+       newTab: false
+   - name: 关于
+     pageRef: /about
+     weight: 50
+     identifier: about
+     params:
+       icon: user
+       newTab: false
 
   social:
     - identifier: github
