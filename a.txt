@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 test branch
 test brach c
+=======
+branch d
+>>>>>>> testd
