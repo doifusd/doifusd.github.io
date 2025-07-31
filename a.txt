@@ -1,7 +1,16 @@
+<<<<<<< HEAD
 111111
+<<<<<<< HEAD
 
+=======
+=======
+>>>>>>> c65f880 (feat:0.1)
 testf
 test branch
 test brach c
 bracnh teste
 3333
+<<<<<<< HEAD
+=======
+>>>>>>> 169d146 (feat:0.1)
+>>>>>>> c65f880 (feat:0.1)
