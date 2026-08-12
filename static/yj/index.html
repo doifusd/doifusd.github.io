@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>经期记录 · 姨妈日历（记录 / 经量 / 痛经 / 分析）</title>
+<style>
+  :root{
+    /* 主色：粉色系 */
+    --pink:#ff6b8b; --pink-dark:#f2426e; --pink-deep:#c9184a; --pink-pale:#ffe9ee; --pink-soft:#fff4f6;
+    --purple:#a78bfa; --purple-pale:#f2edff; --purple-dark:#7c5cf0;
+    --green:#00a870; --green-pale:#e6f9f1;
+    --orange:#ff9433; --orange-pale:#fff3e6;
+    --red:#f53f3f; --gold:#faad14;
+    --ink:#2b2130; --text:#5a5560; --muted:#9b95a3; --faint:#c6c1cd;
+    --line:#f0ebef; --line-soft:#f7f4f7; --page:#fdf7f8; --card:#fff;
+    --shadow:0 6px 22px rgba(190,140,160,.10);
+    --shadow-lg:0 -10px 40px rgba(120,70,95,.18);
+    /* 经量 5 级 */
+    --f1:#ffd6de; --f2:#ffa8bb; --f3:#ff7396; --f4:#f2426e; --f5:#c9184a;
+    /* 痛经 4 级 */
+    --p0:#cbd5e1; --p1:#fbbf24; --p2:#fb923c; --p3:#ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#efe7ea;color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;border:none;background:none;cursor:pointer;color:inherit}
+  input,textarea,select{font-family:inherit;font-size:14px;color:var(--ink)}
+
+  /* ===== 手机外框 ===== */
+  .app{max-width:430px;margin:0 auto;background:var(--page);min-height:100vh;position:relative;
+    box-shadow:0 0 60px rgba(80,40,60,.14);overflow:hidden;
+    padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+
+  /* ===== 顶部状态区 ===== */
+  .hero{background:linear-gradient(160deg,#ff8fa8 0%,#ff6b8b 55%,#f2426e 100%);color:#fff;
+    padding:calc(20px + env(safe-area-inset-top)) 20px 26px;
+    border-radius:0 0 26px 26px;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-40px;top:-50px;width:180px;height:180px;
+    border-radius:50%;background:rgba(255,255,255,.10)}
+  .hero::before{content:"";position:absolute;left:-30px;bottom:-70px;width:140px;height:140px;
+    border-radius:50%;background:rgba(255,255,255,.08)}
+  .hero-top{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2}
+  .hero-top .brand{font-size:16px;font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+  .hero-top .date{font-size:12px;opacity:.85}
+  .ring-wrap{display:flex;flex-direction:column;align-items:center;margin-top:14px;position:relative;z-index:2}
+  .ring{width:168px;height:168px;position:relative}
+  .ring svg{transform:rotate(-90deg)}
+  .ring-in{position:absolute;inset:0;padding:0 20px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center}
+  .ring-in .k{font-size:12px;opacity:.9}
+  .ring-in .v{font-size:38px;font-weight:800;line-height:1.1;letter-spacing:-1px}
+  .ring-in .v small{font-size:15px;font-weight:700;margin-left:2px}
+  .ring-in .s{font-size:11.5px;opacity:.9;margin-top:3px;line-height:1.35}
+  .hero-tips{display:flex;gap:8px;margin-top:14px;position:relative;z-index:2}
+  .hero-tips .t{flex:1;background:rgba(255,255,255,.16);border-radius:12px;padding:8px 6px;text-align:center;backdrop-filter:blur(4px)}
+  .hero-tips .t .tk{font-size:11px;opacity:.85}
+  .hero-tips .t .tv{font-size:14px;font-weight:800;margin-top:1px}
+  .btn-today{position:relative;z-index:2;margin:14px auto 0;display:block;background:#fff;color:var(--pink-dark);
+    font-weight:800;font-size:14px;border-radius:22px;padding:10px 30px;box-shadow:0 6px 18px rgba(160,30,70,.22)}
+
+  /* ===== 通用卡片 ===== */
+  .wrap{padding:14px}
+  .card{background:var(--card);border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px}
+  .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .card-h .ttl{font-size:15px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:6px}
+  .card-h .ttl i{width:4px;height:14px;border-radius:3px;background:var(--pink);display:inline-block;font-style:normal}
+  .card-h .sub{font-size:12px;color:var(--muted)}
+
+  /* ===== 日历 ===== */
+  .cal-h{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:10px}
+  .cal-h .m{font-size:16px;font-weight:800;color:var(--ink);min-width:112px;text-align:center}
+  .cal-h .nav{width:30px;height:30px;border-radius:50%;background:var(--line-soft);color:var(--muted);
+    display:grid;place-items:center;font-size:15px}
+  .cal-h .nav:active{background:var(--pink-pale);color:var(--pink-dark)}
+  .week{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;color:var(--muted);margin-bottom:4px}
+  .week span:first-child,.week span:last-child{color:var(--pink)}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px 0}
+  .cell{aspect-ratio:1/1.06;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    position:relative;font-size:14px;color:var(--ink);border-radius:12px}
+  .cell.out{color:var(--faint)}
+  .cell .n{position:relative;z-index:2;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:600}
+  .cell .dot{width:5px;height:5px;border-radius:50%;background:var(--pink-dark);margin-top:1px}
+  .cell .dot.hide{background:transparent}
+  /* 实际经期 */
+  .cell.pd .n{color:#fff;font-weight:800}
+  .cell.pd.f1 .n{background:var(--f1);color:var(--pink-deep)}
+  .cell.pd.f2 .n{background:var(--f2)}
+  .cell.pd.f3 .n{background:var(--f3)}
+  .cell.pd.f4 .n{background:var(--f4)}
+  .cell.pd.f5 .n{background:var(--f5)}
+  /* 预测经期 */
+  .cell.pp .n{border:1.5px dashed var(--pink);color:var(--pink-dark)}
+  /* 易孕期 / 排卵日：只标数字圆圈，不铺满格子 */
+  .cell.fer .n{background:var(--purple-pale);color:var(--purple-dark);font-weight:700}
+  .cell.ovu .n{border:1.5px dashed var(--purple-dark);background:var(--purple-pale);color:var(--purple-dark);font-weight:800}
+  .cell.out .n{opacity:.5}
+  .cell.today .n::after{content:"";position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);
+    width:16px;height:2px;border-radius:2px;background:var(--ink)}
+  .cell.today .n{outline:2px solid var(--ink);outline-offset:1px}
+  .cell .rec{position:absolute;top:2px;right:calc(50% - 19px);font-size:9px}
+  .cell .pain{width:5px;height:5px;border-radius:50%;position:absolute;bottom:6px}
+  .legend{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--muted)}
+  .legend b{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-2px;margin-right:4px}
+  .legend .dash{border:1.5px dashed var(--pink);background:transparent}
+  .legend .dashp{border:1.5px dashed var(--purple-dark);background:transparent}
+
+  /* ===== 今日速记 ===== */
+  .quick{display:flex;gap:8px}
+  .quick .q{flex:1;border-radius:14px;padding:12px 8px;text-align:center;background:var(--line-soft)}
+  .quick .q .qi{font-size:20px}
+  .quick .q .qt{font-size:12px;font-weight:700;color:var(--ink);margin-top:2px}
+  .quick .q .qs{font-size:11px;color:var(--muted)}
+  .quick .q.on{background:var(--pink-pale)}
+  .quick .q.on .qt{color:var(--pink-dark)}
+
+  /* ===== 分析页 ===== */
+  .stat4{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat4 .s{background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow)}
+  .stat4 .s .sk{font-size:12px;color:var(--muted)}
+  .stat4 .s .sv{font-size:24px;font-weight:800;color:var(--ink);line-height:1.3}
+  .stat4 .s .sv small{font-size:12px;font-weight:600;color:var(--muted);margin-left:2px}
+  .stat4 .s .sx{font-size:11px;color:var(--muted)}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:20px}
+  .tag.ok{background:var(--green-pale);color:var(--green)}
+  .tag.warn{background:var(--orange-pale);color:#d97706}
+  .tag.bad{background:#fff1f0;color:var(--red)}
+
+  /* 柱状图 */
+  .bars{display:flex;align-items:flex-end;gap:6px;height:130px;padding-top:6px;position:relative}
+  .bars .band{position:absolute;left:0;right:0;background:var(--green-pale);border-top:1px dashed #8fd9bd;border-bottom:1px dashed #8fd9bd;z-index:0}
+  .bars .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;position:relative;z-index:1;min-width:0}
+  .bars .bar .bv{font-size:10px;color:var(--muted);margin-bottom:2px}
+  .bars .bar .bb{width:100%;max-width:26px;border-radius:6px 6px 3px 3px;background:linear-gradient(180deg,#ff8fa8,#f2426e)}
+  .bars .bar.abn .bb{background:linear-gradient(180deg,#ffbe7a,#f97316)}
+  .bars .bar .bl{font-size:9.5px;color:var(--faint);margin-top:4px;white-space:nowrap;transform:scale(.92)}
+  .band-note{font-size:11px;color:var(--muted);margin-top:6px;text-align:right}
+
+  /* 经量热力 */
+  .heat-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+  .heat-row .hl{font-size:11px;color:var(--muted);width:52px;flex:none}
+  .heat-row .hs{display:flex;gap:3px;flex:1}
+  .heat-row .hs i{flex:none;width:15px;height:15px;border-radius:4px;background:var(--line);display:block}
+  .heat-row .hr{font-size:11px;color:var(--muted);flex:none}
+  .heat-lg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);margin-top:8px}
+  .heat-lg i{width:14px;height:14px;border-radius:4px;display:block}
+
+  /* 折线图 */
+  .line-chart{width:100%;height:120px;display:block}
+  .sym-list .sym{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .sym-list .sym .sn{font-size:12.5px;color:var(--ink);width:70px;flex:none}
+  .sym-list .sym .sbar{flex:1;height:8px;border-radius:5px;background:var(--line-soft);overflow:hidden}
+  .sym-list .sym .sbar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#ffa8bb,#f2426e)}
+  .sym-list .sym .sc{font-size:11.5px;color:var(--muted);width:36px;text-align:right;flex:none}
+
+  /* 提示 */
+  .alert{display:flex;gap:9px;padding:11px 12px;border-radius:12px;font-size:12.5px;margin-bottom:8px;line-height:1.55}
+  .alert .ai{flex:none;font-size:15px}
+  .alert.ok{background:var(--green-pale);color:#087f5b}
+  .alert.warn{background:var(--orange-pale);color:#b45309}
+  .alert.bad{background:#fff1f0;color:#c0261f}
+  .alert.info{background:#eef4ff;color:#1d4ed8}
+  .alert b{font-weight:800}
+
+  /* 历史列表 */
+  .hist .h{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
+  .hist .h:last-child{border-bottom:none}
+  .hist .h .hd{width:74px;flex:none}
+  .hist .h .hd .h1{font-size:13px;font-weight:700;color:var(--ink)}
+  .hist .h .hd .h2{font-size:11px;color:var(--muted)}
+  .hist .h .hm{flex:1;display:flex;gap:12px;font-size:11.5px;color:var(--muted)}
+  .hist .h .hm b{color:var(--ink);font-weight:700}
+
+  /* ===== 我的页 ===== */
+  .row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+  .row:last-child{border-bottom:none}
+  .row .rk{font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .row .rk .ri{width:26px;height:26px;border-radius:8px;background:var(--pink-pale);color:var(--pink-dark);display:grid;place-items:center;font-size:13px}
+  .row .rv{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+  .stepper{display:flex;align-items:center;gap:4px;background:var(--line-soft);border-radius:20px;padding:3px}
+  .stepper button{width:26px;height:26px;border-radius:50%;background:#fff;color:var(--pink-dark);font-size:15px;font-weight:800;display:grid;place-items:center}
+  .stepper span{min-width:44px;text-align:center;font-size:13px;font-weight:700;color:var(--ink)}
+  .btn{display:block;width:100%;border-radius:12px;padding:12px;font-size:14px;font-weight:800;text-align:center}
+  .btn.primary{background:linear-gradient(90deg,#ff8fa8,#f2426e);color:#fff;box-shadow:0 6px 16px rgba(242,66,110,.28)}
+  .btn.ghost{background:var(--line-soft);color:var(--text)}
+  .btn.danger{background:#fff1f0;color:var(--red)}
+  .btn+.btn{margin-top:8px}
+  .disclaim{font-size:11px;color:var(--faint);line-height:1.7;padding:4px 6px 20px;text-align:center}
+
+  /* ===== 底部 tab ===== */
+  .tabbar{position:fixed;bottom:0;left:0;right:0;max-width:430px;margin:0 auto;background:rgba(255,255,255,.96);
+    backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;z-index:30;
+    padding:6px 0 calc(10px + env(safe-area-inset-bottom))}
+  .tabbar .tb{flex:1;text-align:center;color:var(--faint);font-size:11px}
+  .tabbar .tb .ti{font-size:20px;line-height:1.3;display:block;filter:grayscale(1);opacity:.5}
+  .tabbar .tb.on{color:var(--pink-dark);font-weight:700}
+  .tabbar .tb.on .ti{filter:none;opacity:1}
+  .navbrand,.navfoot{display:none}
+
+  /* ===== 记录弹层 ===== */
+  .mask{position:fixed;inset:0;background:rgba(40,20,30,.45);z-index:40;opacity:0;pointer-events:none;transition:opacity .22s}
+  .mask.on{opacity:1;pointer-events:auto}
+  /* 关键：未打开时必须 pointer-events:none，否则透明弹层会拦截整页点击 */
+  .sheet{position:fixed;left:0;right:0;bottom:0;max-width:430px;margin:0 auto;background:#fff;z-index:50;
+    border-radius:22px 22px 0 0;box-shadow:var(--shadow-lg);transform:translateY(102%);transition:transform .28s cubic-bezier(.32,.72,.3,1);
+    max-height:88vh;display:flex;flex-direction:column;pointer-events:none}
+  .sheet.on{transform:translateY(0);pointer-events:auto}
+  .sheet-h{padding:14px 18px 10px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between;flex:none}
+  .sheet-h .sd{font-size:16px;font-weight:800;color:var(--ink)}
+  .sheet-h .sd small{font-size:12px;font-weight:600;color:var(--muted);margin-left:6px}
+  .sheet-h .sc{font-size:20px;color:var(--faint);width:30px;height:30px;display:grid;place-items:center}
+  .sheet-b{padding:4px 18px 12px;overflow-y:auto;flex:1}
+  .sheet-f{padding:10px 18px calc(20px + env(safe-area-inset-bottom));
+    border-top:1px solid var(--line-soft);display:flex;gap:10px;flex:none}
+  .sheet-f .btn{margin:0}
+  .fld{padding:14px 0;border-bottom:1px dashed var(--line)}
+  .fld:last-child{border-bottom:none}
+  .fld .fk{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:9px;display:flex;align-items:center;gap:6px}
+  .fld .fk em{font-style:normal;font-size:11px;font-weight:600;color:var(--muted)}
+  .opts{display:flex;gap:6px;flex-wrap:wrap}
+  .opt{flex:1;min-width:52px;border:1.5px solid var(--line);border-radius:11px;padding:7px 4px;text-align:center;background:#fff;transition:.15s}
+  .opt .oi{display:block;font-size:15px;line-height:1.4}
+  .opt .ot{font-size:11.5px;color:var(--text);font-weight:600}
+  .opt.on{border-color:var(--pink);background:var(--pink-soft)}
+  .opt.on .ot{color:var(--pink-dark);font-weight:800}
+  .opt.lv .lvbar{display:block;height:5px;border-radius:3px;margin:0 auto 4px;width:60%}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:12.5px;color:var(--text);background:#fff}
+  .chip.on{border-color:var(--pink);background:var(--pink-pale);color:var(--pink-dark);font-weight:700}
+  .note{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;min-height:56px;resize:none;
+    background:var(--line-soft);outline:none;line-height:1.6}
+  .note:focus{border-color:var(--pink);background:#fff}
+
+  .toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,10px);background:rgba(43,33,48,.92);color:#fff;
+    font-size:13px;padding:9px 18px;border-radius:20px;z-index:99;opacity:0;pointer-events:none;transition:.25s}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  .empty{text-align:center;padding:26px 10px;color:var(--muted);font-size:13px}
+  .empty .ei{font-size:34px;display:block;margin-bottom:6px;opacity:.6}
+  .hidden{display:none !important}
+
+  /* =========================================================
+     平板：单栏加宽（600px ~ 899px）
+     ========================================================= */
+  @media (min-width:600px) and (max-width:899px){
+    .app{max-width:560px}
+    .tabbar{max-width:560px}
+    .sheet{max-width:560px}
+    .cell .n{width:40px;height:40px;font-size:15px}
+    .heat-row .hs i{width:20px;height:20px}
+  }
+
+  /* =========================================================
+     PC：左侧导航 + 宽屏多栏（≥900px）
+     ========================================================= */
+  @media (min-width:900px){
+    body{background:#f2eaed;font-size:14.5px}
+    .app{max-width:1180px;display:flex;align-items:flex-start;gap:0;
+      padding-bottom:0;overflow:visible;background:transparent;box-shadow:none;min-height:100vh}
+    .main{flex:1;min-width:0;background:var(--page);min-height:100vh;
+      box-shadow:0 0 50px rgba(120,70,95,.08);padding-bottom:40px}
+
+    /* --- 左侧导航 --- */
+    .tabbar{position:sticky;top:0;left:auto;right:auto;bottom:auto;margin:0;flex:none;
+      width:180px;height:100vh;max-width:none;flex-direction:column;align-items:stretch;gap:4px;
+      padding:22px 12px;background:#fff;border-top:none;border-right:1px solid var(--line);
+      backdrop-filter:none;z-index:20}
+    .navbrand{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;color:var(--ink);
+      padding:6px 12px 20px}
+    .navbrand span{letter-spacing:.5px}
+    .tabbar .tb{flex:none;display:flex;align-items:center;gap:10px;text-align:left;
+      padding:11px 14px;border-radius:12px;font-size:14px;transition:.16s}
+    .tabbar .tb .ti{display:inline;font-size:18px;line-height:1}
+    .tabbar .tb.on{background:var(--pink-pale)}
+    .navfoot{display:block;margin-top:auto;font-size:11px;color:var(--faint);
+      padding:12px;line-height:1.6;border-top:1px dashed var(--line)}
+
+    /* --- 顶部状态：横向布局 --- */
+    .hero{margin:18px 18px 0;border-radius:22px;padding:22px 28px 24px;
+      display:grid;grid-template-columns:auto 1fr;grid-template-areas:"top top" "ring tips" "ring btn";
+      gap:0 34px;align-items:center}
+    .hero-top{grid-area:top;margin-bottom:12px}
+    .hero-top .brand{font-size:17px}
+    .ring-wrap{grid-area:ring;margin-top:0}
+    .hero-tips{grid-area:tips;margin-top:0;gap:10px;align-self:end}
+    .hero-tips .t{padding:12px 8px}
+    .hero-tips .t .tk{font-size:12px}
+    .hero-tips .t .tv{font-size:17px}
+    .btn-today{grid-area:btn;margin:14px 0 0;justify-self:start;align-self:start;padding:11px 38px;font-size:14.5px}
+
+    /* --- 日历页：左日历 + 右信息 --- */
+    #page-cal{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+      grid-template-rows:auto auto auto 1fr;gap:0 14px;align-items:start;padding:14px 18px}
+    #page-cal > .card:nth-child(1){grid-column:1;grid-row:1 / span 4;margin-bottom:0}
+    #page-cal > .card:nth-child(2){grid-column:2;grid-row:1}
+    #page-cal > .card:nth-child(3){grid-column:2;grid-row:2}
+    #page-cal > .card:nth-child(4){grid-column:2;grid-row:3}
+    .card{padding:16px}
+    .cell{aspect-ratio:1/.92}
+    .cell .n{width:42px;height:42px;font-size:15px}
+    .cell .rec{right:calc(50% - 23px)}
+    .cal-h .m{font-size:17px}
+
+    /* --- 分析页：双栏瀑布 --- */
+    #page-stat{columns:2;column-gap:14px;padding:14px 18px}
+    #page-stat > .stat4{column-span:all;grid-template-columns:repeat(4,1fr);margin-bottom:14px}
+    #page-stat > .card{break-inside:avoid;-webkit-column-break-inside:avoid}
+    .bars{height:150px}
+    .heat-row .hs i{width:20px;height:20px}
+    .line-chart{height:150px}
+
+    /* --- 我的页：限宽居中 --- */
+    #page-me{max-width:720px;padding:14px 18px}
+
+    /* --- 记录弹层：居中 Modal --- */
+    .mask{background:rgba(40,20,30,.42)}
+    .sheet{top:50%;left:50%;right:auto;bottom:auto;margin:0;width:560px;max-width:calc(100vw - 40px);
+      max-height:84vh;border-radius:20px;opacity:0;visibility:hidden;pointer-events:none;
+      transform:translate(-50%,-46%) scale(.97);
+      transition:transform .24s cubic-bezier(.32,.72,.3,1),opacity .2s,visibility 0s .24s}
+    .sheet.on{transform:translate(-50%,-50%) scale(1);opacity:1;visibility:visible;pointer-events:auto;
+      transition:transform .24s cubic-bezier(.32,.72,.3,1),opacity .2s,visibility 0s}
+    .sheet-f{padding:12px 18px 16px}
+    .opt{padding:9px 6px}
+    .toast{bottom:40px}
+  }
+
+  /* 超宽屏：内容再宽一点 */
+  @media (min-width:1400px){
+    .app{max-width:1320px}
+    #page-cal{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+  }
+
+  /* 鼠标设备的悬停反馈（触屏不生效） */
+  @media (hover:hover) and (pointer:fine){
+    .cell{cursor:pointer}
+    .cell .n{transition:background .15s}
+    .cell:not(.pd):not(.fer):hover .n{background:var(--line-soft)}
+    .opt,.chip,.btn,.q,.nav,.tb,.stepper button{transition:.15s}
+    .opt:hover{border-color:var(--pink)}
+    .chip:hover{border-color:var(--pink);color:var(--pink-dark)}
+    .btn:hover{filter:brightness(.97)}
+    .btn.primary:hover{filter:brightness(1.04)}
+    .q:hover{background:var(--pink-pale)}
+    .tabbar .tb:hover{color:var(--pink-dark)}
+    .tabbar .tb:hover .ti{filter:none;opacity:1}
+    .cal-h .nav:hover{background:var(--pink-pale);color:var(--pink-dark)}
+    .hist .h[data-d]:hover{background:var(--line-soft)}
+    .btn-today:hover{transform:translateY(-1px)}
+    .sheet-h .sc:hover{color:var(--ink)}
+  }
+</style>
+
+<link rel="manifest" href="./manifest.webmanifest" />
+<meta name="theme-color" content="#ff6b8b" />
+<meta name="description" content="经期记录与分析，数据仅保存在本机" />
+<!-- 托管在公网时不希望被搜索引擎收录 -->
+<meta name="robots" content="noindex, nofollow" />
+<!-- iOS 添加到主屏幕 -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="姨妈日历" />
+<link rel="apple-touch-icon" href="./icon-180.png" />
+<link rel="icon" href="./icon-192.png" />
+</head>
+<body>
+
+<div class="app">
+  <!-- ===================== 导航（手机=底部 Tab / PC=左侧栏） ===================== -->
+  <nav class="tabbar">
+    <div class="navbrand">🌸<span>姨妈日历</span></div>
+    <div class="tb on" data-tab="cal"><span class="ti">📅</span>日历</div>
+    <div class="tb" data-tab="stat"><span class="ti">📊</span>分析</div>
+    <div class="tb" data-tab="me"><span class="ti">👤</span>我的</div>
+    <div class="navfoot">数据仅保存在本机</div>
+  </nav>
+
+  <div class="main">
+  <!-- ===================== 顶部状态 ===================== -->
+  <header class="hero">
+    <div class="hero-top">
+      <div class="brand">🌸 姨妈日历</div>
+      <div class="date" id="heroDate"></div>
+    </div>
+    <div class="ring-wrap">
+      <div class="ring">
+        <svg width="168" height="168" viewBox="0 0 168 168">
+          <circle cx="84" cy="84" r="72" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="10"/>
+          <circle id="ringArc" cx="84" cy="84" r="72" fill="none" stroke="#fff" stroke-width="10"
+                  stroke-linecap="round" stroke-dasharray="452" stroke-dashoffset="452"/>
+        </svg>
+        <div class="ring-in">
+          <div class="k" id="ringK">距离下次月经</div>
+          <div class="v" id="ringV">--</div>
+          <div class="s" id="ringS">还没有记录</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-tips">
+      <div class="t"><div class="tk">当前阶段</div><div class="tv" id="tipPhase">—</div></div>
+      <div class="t"><div class="tk">平均周期</div><div class="tv" id="tipCycle">—</div></div>
+      <div class="t"><div class="tk">怀孕概率</div><div class="tv" id="tipPreg">—</div></div>
+    </div>
+    <button class="btn-today" id="btnToday">📝 记录今天</button>
+  </header>
+
+  <!-- ===================== 页面 1：日历 ===================== -->
+  <section id="page-cal" class="wrap">
+    <div class="card">
+      <div class="cal-h">
+        <button class="nav" id="prevM">‹</button>
+        <div class="m" id="calMonth">2026年8月</div>
+        <button class="nav" id="nextM">›</button>
+      </div>
+      <div class="week"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+      <div class="grid" id="calGrid"></div>
+      <div class="legend">
+        <span><b style="background:var(--f4)"></b>经期（深浅＝经量）</span>
+        <span><b class="dash"></b>预测经期</span>
+        <span><b style="background:var(--purple-pale)"></b>易孕期</span>
+        <span><b class="dashp"></b>排卵日</span>
+        <span><b style="background:var(--p3)"></b>痛经标记</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>今日速记</div><div class="sub" id="quickDate"></div></div>
+      <div class="quick" id="quickBox"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>近期预测</div><div class="sub">基于平均周期推算</div></div>
+      <div id="predictList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>本月记录</div><div class="sub" id="monthSub">—</div></div>
+      <div id="monthList"></div>
+    </div>
+  </section>
+
+  <!-- ===================== 页面 2：分析 ===================== -->
+  <section id="page-stat" class="wrap hidden">
+    <div class="stat4" style="margin-bottom:12px">
+      <div class="s"><div class="sk">平均周期</div><div class="sv" id="stCycle">--<small>天</small></div><div class="sx" id="stCycleX">—</div></div>
+      <div class="s"><div class="sk">平均经期</div><div class="sv" id="stLen">--<small>天</small></div><div class="sx" id="stLenX">—</div></div>
+      <div class="s"><div class="sk">周期规律性</div><div class="sv" id="stReg" style="font-size:20px">--</div><div class="sx" id="stRegX">—</div></div>
+      <div class="s"><div class="sk">已记录</div><div class="sv" id="stCnt">--<small>次</small></div><div class="sx" id="stCntX">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>健康提示</div><div class="sub">基于你的记录</div></div>
+      <div id="alerts"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>周期长度趋势</div><div class="sub">正常 21–35 天</div></div>
+      <div class="bars" id="cycleBars"></div>
+      <div class="band-note">绿色区间 = 医学正常范围（21–35 天）</div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>经期长度趋势</div><div class="sub">正常 2–8 天</div></div>
+      <div class="bars" id="lenBars"></div>
+      <div class="band-note">绿色区间 = 医学正常范围（2–8 天）</div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>每次经量分布</div><div class="sub">颜色越深经量越大</div></div>
+      <div id="heatBox"></div>
+      <div class="heat-lg">
+        <span>少</span>
+        <i style="background:var(--f1)"></i><i style="background:var(--f2)"></i><i style="background:var(--f3)"></i><i style="background:var(--f4)"></i><i style="background:var(--f5)"></i>
+        <span>多</span>
+        <span style="margin-left:auto">右侧数字＝该次经量总分</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>痛经趋势</div><div class="sub">每次经期最高痛感</div></div>
+      <svg class="line-chart" id="painChart" viewBox="0 0 320 120" preserveAspectRatio="none"></svg>
+      <div class="legend" style="border:none;padding-top:6px;margin-top:2px">
+        <span><b style="background:var(--p0)"></b>无痛</span>
+        <span><b style="background:var(--p1)"></b>轻微</span>
+        <span><b style="background:var(--p2)"></b>中度</span>
+        <span><b style="background:var(--p3)"></b>剧烈</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>高频症状</div><div class="sub">出现天数 Top 8</div></div>
+      <div class="sym-list" id="symList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>历史周期</div><div class="sub" id="histSub">—</div></div>
+      <div class="hist" id="histList"></div>
+    </div>
+  </section>
+
+  <!-- ===================== 页面 3：我的 ===================== -->
+  <section id="page-me" class="wrap hidden">
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>预测参数</div><div class="sub">记录满 2 次后自动用真实数据</div></div>
+      <div class="row">
+        <div class="rk"><span class="ri">🔁</span>默认周期长度</div>
+        <div class="rv"><div class="stepper"><button data-step="cycle,-1">−</button><span id="setCycle">28 天</span><button data-step="cycle,1">+</button></div></div>
+      </div>
+      <div class="row">
+        <div class="rk"><span class="ri">🩸</span>默认经期天数</div>
+        <div class="rv"><div class="stepper"><button data-step="period,-1">−</button><span id="setPeriod">5 天</span><button data-step="period,1">+</button></div></div>
+      </div>
+      <div class="row">
+        <div class="rk"><span class="ri">📈</span>预测参考次数</div>
+        <div class="rv"><div class="stepper"><button data-step="window,-1">−</button><span id="setWindow">6 次</span><button data-step="window,1">+</button></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>数据管理</div><div class="sub" id="dataSub">—</div></div>
+      <button class="btn ghost" id="btnExport">⬇️ 导出数据（JSON 备份）</button>
+      <button class="btn ghost" id="btnImport">⬆️ 导入备份</button>
+      <button class="btn ghost" id="btnDemo">🎁 载入示例数据（体验用）</button>
+      <button class="btn danger" id="btnClear">🗑 清空全部记录</button>
+      <input type="file" id="fileInput" accept="application/json,.json" class="hidden" />
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="ttl"><i></i>关于</div></div>
+      <div style="font-size:12.5px;line-height:1.9;color:var(--text)">
+        · 所有数据<b>只存在你自己的浏览器里</b>（localStorage），不上传任何服务器。<br/>
+        · 清理浏览器数据会一并清除记录，重要数据请定期导出备份。<br/>
+        · 预测算法：取最近 N 次真实周期的平均值推算下次经期，排卵日按下次经期倒推 14 天，易孕期为排卵日前 5 天至后 4 天。
+      </div>
+    </div>
+
+    <div class="disclaim">
+      本工具仅用于自我记录与趋势观察，不构成任何医疗诊断或建议。<br/>
+      若出现周期严重紊乱、经量骤变、剧烈痛经等情况，请及时就医。
+    </div>
+  </section>
+
+  </div><!-- /main -->
+</div>
+
+<!-- ===================== 记录弹层 ===================== -->
+<div class="mask" id="mask"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-h">
+    <div class="sd" id="sheetDate">8月11日 <small>周一</small></div>
+    <button class="sc" id="sheetClose">✕</button>
+  </div>
+  <div class="sheet-b">
+    <div class="fld">
+      <div class="fk">🩸 今天来月经了吗<em>必选</em></div>
+      <div class="opts" id="optFlow"></div>
+    </div>
+    <div class="fld" id="fldExtra">
+      <div class="fk">😣 痛经程度</div>
+      <div class="opts" id="optPain"></div>
+    </div>
+    <div class="fld" id="fldColor">
+      <div class="fk">🎨 经血颜色<em>选填</em></div>
+      <div class="opts" id="optColor"></div>
+    </div>
+    <div class="fld" id="fldClot">
+      <div class="fk">🧊 血块<em>选填</em></div>
+      <div class="opts" id="optClot"></div>
+    </div>
+    <div class="fld">
+      <div class="fk">🙂 心情<em>选填</em></div>
+      <div class="opts" id="optMood"></div>
+    </div>
+    <div class="fld">
+      <div class="fk">🤒 身体症状<em>可多选</em></div>
+      <div class="chips" id="optSym"></div>
+    </div>
+    <div class="fld">
+      <div class="fk">✏️ 备注</div>
+      <textarea class="note" id="optNote" placeholder="例如：第一天量特别大 / 吃了止痛药 / 熬夜了…"></textarea>
+    </div>
+  </div>
+  <div class="sheet-f">
+    <button class="btn ghost" id="btnDel" style="flex:0 0 96px">删除记录</button>
+    <button class="btn primary" id="btnSave" style="flex:1">保存</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   常量与配置
+   ========================================================= */
+const STORE_KEY = 'period-tracker-v1';
+
+// 经量等级：0 = 没来，1~5 递增
+const FLOW_LEVELS = [
+  { v:0, t:'没来',   i:'⚪️', c:'transparent' },
+  { v:1, t:'点滴',   i:'',   c:'var(--f1)' },
+  { v:2, t:'少量',   i:'',   c:'var(--f2)' },
+  { v:3, t:'中等',   i:'',   c:'var(--f3)' },
+  { v:4, t:'大量',   i:'',   c:'var(--f4)' },
+  { v:5, t:'超大量', i:'',   c:'var(--f5)' }
+];
+// 痛经等级 0~3
+const PAIN_LEVELS = [
+  { v:0, t:'无痛', i:'😊', c:'var(--p0)' },
+  { v:1, t:'轻微', i:'🙂', c:'var(--p1)' },
+  { v:2, t:'中度', i:'😣', c:'var(--p2)' },
+  { v:3, t:'剧烈', i:'😭', c:'var(--p3)' }
+];
+const COLORS = [
+  { v:'bright', t:'鲜红', i:'🔴' },
+  { v:'dark',   t:'暗红', i:'🟤' },
+  { v:'brown',  t:'褐色', i:'🟫' },
+  { v:'pink',   t:'粉色', i:'🌸' }
+];
+const CLOTS = [
+  { v:0, t:'无',   i:'✅' },
+  { v:1, t:'少量', i:'▫️' },
+  { v:2, t:'较多', i:'⬛️' }
+];
+const MOODS = [
+  { v:'happy', t:'开心', i:'😄' },
+  { v:'calm',  t:'平静', i:'😌' },
+  { v:'tired', t:'疲惫', i:'😪' },
+  { v:'down',  t:'低落', i:'😔' },
+  { v:'angry', t:'易怒', i:'😤' }
+];
+const SYMPTOMS = ['腰酸','头痛','乳房胀痛','小腹坠胀','腹泻','便秘','乏力','长痘','失眠','食欲大增','水肿','恶心'];
+
+// 医学参考范围
+const NORMAL_CYCLE = [21, 35];
+const NORMAL_LEN   = [2, 8];
+
+/* =========================================================
+   日期工具
+   ========================================================= */
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseYmd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const diffDays = (a, b) => Math.round((a - b) / 86400000);
+const WEEK_CN = ['周日','周一','周二','周三','周四','周五','周六'];
+const todayStr = () => ymd(new Date());
+const avg = arr => arr.length ? arr.reduce((s,x)=>s+x,0) / arr.length : 0;
+const round1 = n => Math.round(n * 10) / 10;
+
+/* =========================================================
+   状态（不可变更新）
+   ========================================================= */
+const DEFAULT_STATE = {
+  records: {},                                     // { 'YYYY-MM-DD': {flow,pain,color,clot,mood,syms,note} }
+  settings: { cycle: 28, period: 5, window: 6 }    // 默认周期 / 默认经期 / 预测参考次数
+};
+
+let state = loadState();
+let viewMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1); // 日历当前月
+let editing = { date: null, draft: null };                                    // 弹层编辑中的记录
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return { ...DEFAULT_STATE, records:{}, settings:{ ...DEFAULT_STATE.settings } };
+    const parsed = JSON.parse(raw);
+    return {
+      records: parsed.records && typeof parsed.records === 'object' ? parsed.records : {},
+      settings: { ...DEFAULT_STATE.settings, ...(parsed.settings || {}) }
+    };
+  }catch(e){
+    console.warn('读取本地数据失败，已重置为空：', e);
+    return { records:{}, settings:{ ...DEFAULT_STATE.settings } };
+  }
+}
+function saveState(next){
+  state = next;
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+  }catch(e){
+    toast('保存失败：浏览器存储空间不足');
+    console.error(e);
+  }
+  renderAll();
+}
+// 写入某天记录（返回新 state，不修改原对象）
+function putRecord(date, rec){
+  const records = { ...state.records, [date]: rec };
+  saveState({ ...state, records });
+}
+function removeRecord(date){
+  const records = { ...state.records };
+  delete records[date];
+  saveState({ ...state, records });
+}
+function patchSettings(patch){
+  saveState({ ...state, settings: { ...state.settings, ...patch } });
+}
+
+/* =========================================================
+   核心分析：把散点记录聚合成「一次次经期」
+   规则：相邻两条经血记录间隔 ≤ 2 天（中间最多空 1 天漏记）视为同一次经期
+   ========================================================= */
+function getPeriods(){
+  const days = Object.keys(state.records)
+    .filter(k => (state.records[k].flow || 0) > 0)
+    .sort();
+  if(!days.length) return [];
+
+  const groups = [];
+  let cur = [days[0]];
+  for(let i = 1; i < days.length; i++){
+    const gap = diffDays(parseYmd(days[i]), parseYmd(cur[cur.length-1]));
+    if(gap <= 2) cur.push(days[i]);
+    else { groups.push(cur); cur = [days[i]]; }
+  }
+  groups.push(cur);
+
+  return groups.map(g => {
+    const flows = g.map(d => state.records[d].flow || 0);
+    const pains = g.map(d => state.records[d].pain || 0);
+    return {
+      start: g[0],
+      end: g[g.length-1],
+      days: g,
+      length: diffDays(parseYmd(g[g.length-1]), parseYmd(g[0])) + 1,
+      flowSum: flows.reduce((s,x)=>s+x, 0),
+      flowMax: Math.max(...flows),
+      flowAvg: avg(flows),
+      painMax: Math.max(...pains),
+      painAvg: avg(pains)
+    };
+  });
+}
+
+// 周期长度数组（相邻两次经期首日之差）
+function getCycleLengths(periods){
+  const out = [];
+  for(let i = 1; i < periods.length; i++){
+    out.push({
+      from: periods[i-1].start,
+      to: periods[i].start,
+      len: diffDays(parseYmd(periods[i].start), parseYmd(periods[i-1].start))
+    });
+  }
+  return out;
+}
+
+// 汇总统计 + 预测
+function analyze(){
+  const periods = getPeriods();
+  const cycles = getCycleLengths(periods);
+  const win = state.settings.window;
+  const recentCycles = cycles.slice(-win).map(c => c.len).filter(l => l >= 15 && l <= 60); // 剔除明显异常值
+  const recentLens = periods.slice(-win).map(p => p.length);
+
+  const avgCycle = recentCycles.length ? Math.round(avg(recentCycles)) : state.settings.cycle;
+  const avgLen   = recentLens.length ? Math.round(avg(recentLens)) : state.settings.period;
+
+  // 规律性：标准差
+  let sd = 0;
+  if(recentCycles.length >= 2){
+    const m = avg(recentCycles);
+    sd = Math.sqrt(avg(recentCycles.map(x => (x - m) ** 2)));
+  }
+  const regular = recentCycles.length < 2 ? { t:'待记录', cls:'', sd:0 }
+    : sd <= 2 ? { t:'很规律', cls:'ok', sd }
+    : sd <= 4 ? { t:'较规律', cls:'warn', sd }
+    : { t:'不规律', cls:'bad', sd };
+
+  const last = periods[periods.length - 1] || null;
+
+  // 未来 6 次预测经期
+  const predictions = [];
+  if(last){
+    for(let i = 1; i <= 6; i++){
+      const s = addDays(parseYmd(last.start), avgCycle * i);
+      predictions.push({ start: ymd(s), end: ymd(addDays(s, avgLen - 1)), startDate: s });
+    }
+  }
+
+  const today = parseYmd(todayStr());
+  // 当前是否在经期中（今天或昨天有经血记录，且未明显结束）
+  const inPeriod = !!(last && diffDays(today, parseYmd(last.end)) <= 1 && diffDays(today, parseYmd(last.start)) >= 0);
+
+  // 下次经期 & 倒计时
+  let nextStart = null, daysToNext = null, cycleDay = null;
+  if(last){
+    cycleDay = diffDays(today, parseYmd(last.start)) + 1;   // 当前处于本周期第几天
+    const cand = predictions.find(p => diffDays(p.startDate, today) >= 0);
+    if(cand){ nextStart = cand.startDate; daysToNext = diffDays(cand.startDate, today); }
+    if(inPeriod){ nextStart = null; daysToNext = null; }
+  }
+
+  // 排卵日 / 易孕期：黄体期固定约 14 天，用「下一次经期首日 − 14」倒推
+  // 历史周期用真实的下一次经期倒推（更准），当前及未来周期用预测经期倒推
+  const ovuDays = [];
+  for(let i = 1; i < periods.length; i++) ovuDays.push(addDays(parseYmd(periods[i].start), -14));
+  predictions.forEach(p => ovuDays.push(addDays(p.startDate, -14)));
+
+  const ovuSet = new Set(ovuDays.map(ymd));
+  const fertileSet = new Set();
+  ovuDays.forEach(o => { for(let k = -5; k <= 4; k++) fertileSet.add(ymd(addDays(o, k))); });
+
+  // 当前周期的排卵日与易孕期（用于顶部状态展示）
+  const ovu = predictions.length ? addDays(predictions[0].startDate, -14) : null;
+  const ferStart = ovu ? addDays(ovu, -5) : null;
+  const ferEnd = ovu ? addDays(ovu, 4) : null;
+
+  return { periods, cycles, avgCycle, avgLen, regular, last, predictions, inPeriod,
+           cycleDay, nextStart, daysToNext, ovu, ferStart, ferEnd, ovuSet, fertileSet, today };
+}
+
+// 某天在日历上的状态（优先级：实际经期 > 预测经期 > 排卵/易孕期）
+function dayStatus(dateStr, A){
+  const rec = state.records[dateStr];
+  const isPeriod = !!(rec && (rec.flow || 0) > 0);
+  const isPredPeriod = !isPeriod && A.predictions.some(p => dateStr >= p.start && dateStr <= p.end);
+  const free = !isPeriod && !isPredPeriod;
+  return {
+    rec, isPeriod, isPredPeriod,
+    isFertile: free && A.fertileSet.has(dateStr),
+    isOvu: free && A.ovuSet.has(dateStr)
+  };
+}
+
+/* =========================================================
+   渲染：顶部状态
+   ========================================================= */
+function renderHero(A){
+  const now = new Date();
+  document.getElementById('heroDate').textContent =
+    `${now.getMonth()+1}月${now.getDate()}日 ${WEEK_CN[now.getDay()]}`;
+
+  const ringK = document.getElementById('ringK');
+  const ringV = document.getElementById('ringV');
+  const ringS = document.getElementById('ringS');
+  const arc = document.getElementById('ringArc');
+  const C = 452; // 2πr, r=72
+
+  if(!A.last){
+    ringK.textContent = '开始记录吧';
+    ringV.innerHTML = '--';
+    ringS.textContent = '点下方按钮记录第一天';
+    arc.setAttribute('stroke-dashoffset', C);
+  } else if(A.inPeriod){
+    const n = diffDays(A.today, parseYmd(A.last.start)) + 1;
+    ringK.textContent = '经期中';
+    ringV.innerHTML = `第 ${n}<small>天</small>`;
+    ringS.textContent = `本次已持续 ${A.last.length} 天`;
+    arc.setAttribute('stroke-dashoffset', C * (1 - Math.min(n / Math.max(A.avgLen,1), 1)));
+  } else if(A.daysToNext !== null){
+    ringK.textContent = A.daysToNext === 0 ? '预计今天' : '距离下次月经';
+    ringV.innerHTML = A.daysToNext === 0 ? '今天' : `${A.daysToNext}<small>天</small>`;
+    ringS.textContent = `预计 ${fmtMd(A.nextStart)} 开始`;
+    const passed = A.avgCycle - A.daysToNext;
+    arc.setAttribute('stroke-dashoffset', C * (1 - Math.min(Math.max(passed / A.avgCycle, 0), 1)));
+  } else {
+    ringK.textContent = '周期已延后';
+    ringV.innerHTML = '--';
+    ringS.textContent = '记录一下最新情况吧';
+    arc.setAttribute('stroke-dashoffset', 0);
+  }
+
+  // 阶段与受孕概率（粗略：仅供参考）
+  let phase = '—', preg = '—';
+  if(A.last){
+    const dToOvu = A.ovu ? diffDays(A.ovu, A.today) : null;
+    if(A.inPeriod){ phase = '月经期'; preg = '极低'; }
+    else if(dToOvu !== null && dToOvu <= 5 && dToOvu >= -4){
+      phase = dToOvu === 0 ? '排卵日' : '易孕期';
+      preg = dToOvu === 0 ? '很高' : '较高';
+    }
+    else if(dToOvu !== null && dToOvu > 5){ phase = '卵泡期'; preg = '低'; }
+    else { phase = '黄体期'; preg = '低'; }
+  }
+  document.getElementById('tipPhase').textContent = phase;
+  document.getElementById('tipCycle').textContent = A.last ? `${A.avgCycle}天` : `${state.settings.cycle}天`;
+  document.getElementById('tipPreg').textContent = preg;
+}
+const fmtMd = d => d ? `${d.getMonth()+1}月${d.getDate()}日` : '—';
+
+/* =========================================================
+   渲染：日历
+   ========================================================= */
+function renderCalendar(A){
+  document.getElementById('calMonth').textContent = `${viewMonth.getFullYear()}年${viewMonth.getMonth()+1}月`;
+  const grid = document.getElementById('calGrid');
+  const first = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+  const startOffset = first.getDay();                 // 周日开头
+  const gridStart = addDays(first, -startOffset);
+  const tStr = todayStr();
+
+  const cells = [];
+  for(let i = 0; i < 42; i++){
+    const d = addDays(gridStart, i);
+    const ds = ymd(d);
+    const out = d.getMonth() !== viewMonth.getMonth();
+    const st = dayStatus(ds, A);
+    const cls = ['cell'];
+    if(out) cls.push('out');
+    if(ds === tStr) cls.push('today');
+    if(st.isPeriod) cls.push('pd', 'f' + st.rec.flow);
+    if(st.isPredPeriod) cls.push('pp');
+    if(st.isFertile) cls.push('fer');
+    if(st.isOvu) cls.push('ovu');
+
+    const painDot = st.rec && st.rec.pain > 0
+      ? `<span class="pain" style="background:${PAIN_LEVELS[st.rec.pain].c}"></span>` : '';
+    const noteDot = st.rec && (st.rec.note || (st.rec.syms && st.rec.syms.length))
+      ? `<span class="rec">·</span>` : '';
+
+    cells.push(`<div class="${cls.join(' ')}" data-d="${ds}">
+      <span class="n">${d.getDate()}</span>${painDot}${noteDot}
+    </div>`);
+  }
+  grid.innerHTML = cells.join('');   // 点击交给 #calGrid 上的事件委托处理
+  renderMonthList(A);
+}
+
+function renderMonthList(A){
+  const y = viewMonth.getFullYear(), m = viewMonth.getMonth();
+  const keys = Object.keys(state.records)
+    .filter(k => { const d = parseYmd(k); return d.getFullYear() === y && d.getMonth() === m; })
+    .sort();
+  const box = document.getElementById('monthList');
+  const sub = document.getElementById('monthSub');
+
+  if(!keys.length){
+    sub.textContent = '0 条';
+    box.innerHTML = `<div class="empty"><span class="ei">🗓</span>本月还没有记录，点日历上的日期即可记录</div>`;
+    return;
+  }
+  const bleed = keys.filter(k => (state.records[k].flow||0) > 0).length;
+  sub.textContent = `${keys.length} 条 · 经期 ${bleed} 天`;
+  box.innerHTML = `<div class="hist">` + keys.map(k => {
+    const r = state.records[k];
+    const d = parseYmd(k);
+    const flow = FLOW_LEVELS[r.flow || 0];
+    const pain = PAIN_LEVELS[r.pain || 0];
+    const extra = [];
+    if(r.color) extra.push(COLORS.find(c=>c.v===r.color)?.t || '');
+    if(r.clot) extra.push('血块·' + CLOTS[r.clot].t);
+    if(r.mood) extra.push(MOODS.find(c=>c.v===r.mood)?.i || '');
+    if(r.syms && r.syms.length) extra.push(r.syms.slice(0,2).join('/') + (r.syms.length>2?'…':''));
+    return `<div class="h" data-d="${k}" style="cursor:pointer">
+      <div class="hd"><div class="h1">${d.getMonth()+1}月${d.getDate()}日</div><div class="h2">${WEEK_CN[d.getDay()]}</div></div>
+      <div class="hm">
+        <span><b style="color:${(r.flow||0)>0?flow.c:'var(--muted)'}">${(r.flow||0)>0?'🩸'+flow.t:'未来月经'}</b></span>
+        <span>痛感 <b style="color:${pain.c}">${pain.t}</b></span>
+        <span style="color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${extra.filter(Boolean).join(' · ')}</span>
+      </div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+/* =========================================================
+   渲染：今日速记
+   ========================================================= */
+function renderQuick(){
+  const t = todayStr();
+  const r = state.records[t];
+  document.getElementById('quickDate').textContent = r ? '已记录，可修改' : '还没记录';
+  const box = document.getElementById('quickBox');
+  const items = [
+    { k:'来了', i:'🩸', s: r && r.flow>0 ? FLOW_LEVELS[r.flow].t : '记录经量', on: !!(r && r.flow>0), act:'flow' },
+    { k:'没来', i:'⚪️', s: r && r.flow===0 ? '已记录' : '标记未来', on: !!(r && r.flow===0), act:'none' },
+    { k:'痛经', i:'😣', s: r && r.pain>0 ? PAIN_LEVELS[r.pain].t : '记录痛感', on: !!(r && r.pain>0), act:'pain' }
+  ];
+  box.innerHTML = items.map(x =>
+    `<div class="q ${x.on?'on':''}" data-act="${x.act}">
+      <div class="qi">${x.i}</div><div class="qt">${x.k}</div><div class="qs">${x.s}</div>
+    </div>`).join('');
+}
+
+/* 列表类点击统一走委托：容器只绑定一次，内容随便重绘都不会失效 */
+document.getElementById('calGrid').addEventListener('click', e => {
+  const cell = e.target.closest('.cell');
+  if(cell && cell.dataset.d) openSheet(cell.dataset.d);
+});
+document.getElementById('monthList').addEventListener('click', e => {
+  const h = e.target.closest('.h');
+  if(h && h.dataset.d) openSheet(h.dataset.d);
+});
+document.getElementById('quickBox').addEventListener('click', e => {
+  const q = e.target.closest('.q');
+  if(!q) return;
+  const t = todayStr();
+  if(q.dataset.act === 'none'){
+    const cur = state.records[t] || {};
+    putRecord(t, { ...cur, flow: 0 });
+    toast('已记录：今天没来月经');
+  } else {
+    openSheet(t);
+  }
+});
+
+/* =========================================================
+   渲染：近期预测
+   ========================================================= */
+function renderPredict(A){
+  const box = document.getElementById('predictList');
+  if(!A.predictions.length){
+    box.innerHTML = `<div class="empty"><span class="ei">🔮</span>记录一次经期后即可推算下次时间</div>`;
+    return;
+  }
+  const p1 = A.predictions[0], p2 = A.predictions[1];
+  const dTo = d => {
+    const n = diffDays(d, A.today);
+    return n === 0 ? '就是今天' : n > 0 ? `还有 ${n} 天` : `已过 ${-n} 天`;
+  };
+  const rows = [
+    { i:'🩸', k:'下次月经', v:`${fmtMd(p1.startDate)} – ${fmtMd(parseYmd(p1.end))}`, x:dTo(p1.startDate) },
+    { i:'🥚', k:'排卵日',   v:fmtMd(A.ovu),                                          x:dTo(A.ovu) },
+    { i:'💜', k:'易孕期',   v:`${fmtMd(A.ferStart)} – ${fmtMd(A.ferEnd)}`,            x:'共 10 天' },
+    { i:'📅', k:'下下次月经', v:p2 ? fmtMd(p2.startDate) : '—',                        x:p2 ? dTo(p2.startDate) : '' }
+  ];
+  box.innerHTML = rows.map(r =>
+    `<div class="row">
+      <div class="rk"><span class="ri">${r.i}</span>${r.k}</div>
+      <div class="rv"><b style="color:var(--ink);font-weight:700">${r.v}</b><span style="color:var(--faint)">${r.x}</span></div>
+    </div>`).join('');
+}
+
+/* =========================================================
+   渲染：分析页
+   ========================================================= */
+function renderStat(A){
+  const { periods, cycles, avgCycle, avgLen, regular } = A;
+
+  document.getElementById('stCycle').innerHTML = `${avgCycle}<small>天</small>`;
+  document.getElementById('stCycleX').innerHTML = cycles.length
+    ? (avgCycle >= NORMAL_CYCLE[0] && avgCycle <= NORMAL_CYCLE[1]
+        ? `<span class="tag ok">正常范围</span>` : `<span class="tag warn">超出 21–35</span>`)
+    : '默认值，待记录';
+  document.getElementById('stLen').innerHTML = `${avgLen}<small>天</small>`;
+  document.getElementById('stLenX').innerHTML = periods.length
+    ? (avgLen >= NORMAL_LEN[0] && avgLen <= NORMAL_LEN[1]
+        ? `<span class="tag ok">正常范围</span>` : `<span class="tag warn">超出 2–8</span>`)
+    : '默认值，待记录';
+  document.getElementById('stReg').innerHTML = regular.t;
+  document.getElementById('stRegX').innerHTML = regular.sd
+    ? `波动 ±${round1(regular.sd)} 天` : '至少 3 次经期才能计算';
+  document.getElementById('stCnt').innerHTML = `${periods.length}<small>次</small>`;
+  document.getElementById('stCntX').textContent = periods.length
+    ? `首次 ${periods[0].start}` : '暂无';
+
+  renderAlerts(A);
+  renderCycleBars(A);
+  renderLenBars(A);
+  renderHeat(A);
+  renderPainChart(A);
+  renderSymptoms();
+  renderHistory(A);
+}
+
+// 健康提示（规则引擎）
+function renderAlerts(A){
+  const box = document.getElementById('alerts');
+  const { periods, cycles, avgCycle, avgLen, regular } = A;
+  const out = [];
+
+  if(periods.length < 2){
+    out.push(['info','💡','记录满 <b>2 次以上</b>经期后，才能计算你的真实周期长度并做预测。现在使用的是默认参数。']);
+  }
+  if(cycles.length >= 1){
+    const shortC = cycles.filter(c => c.len < NORMAL_CYCLE[0]).length;
+    const longC  = cycles.filter(c => c.len > NORMAL_CYCLE[1]).length;
+    if(shortC) out.push(['warn','⚠️',`有 <b>${shortC} 次</b>周期短于 21 天（月经频发）。偶尔一次多因熬夜、压力、节食；若连续出现建议就医检查。`]);
+    if(longC)  out.push(['warn','⚠️',`有 <b>${longC} 次</b>周期长于 35 天（月经稀发）。常见于多囊卵巢、甲状腺异常、体重骤变，建议关注。`]);
+  }
+  const longLen = periods.filter(p => p.length > NORMAL_LEN[1]).length;
+  const shortLen = periods.filter(p => p.length < NORMAL_LEN[0]).length;
+  if(longLen) out.push(['warn','🩸',`有 <b>${longLen} 次</b>经期超过 8 天，属于经期过长，建议记录经量并咨询医生。`]);
+  if(shortLen) out.push(['warn','🩸',`有 <b>${shortLen} 次</b>经期不足 2 天，可能是经量过少，注意是否伴随体重、情绪的明显变化。`]);
+
+  const heavy = periods.filter(p => p.flowSum >= 18 || p.flowMax === 5).length;
+  if(heavy) out.push(['warn','💧',`有 <b>${heavy} 次</b>经量偏多（出现超大量或总量偏高）。长期经量过多易导致贫血，可查一次血常规。`]);
+
+  const badPain = periods.filter(p => p.painMax >= 3).length;
+  if(badPain >= 2) out.push(['bad','😭',`有 <b>${badPain} 次</b>出现<b>剧烈痛经</b>。若疼痛逐次加重、影响正常生活，建议排查子宫内膜异位症等继发原因。`]);
+  else if(badPain === 1) out.push(['warn','😣','有 1 次剧烈痛经，先观察是否为偶发；注意保暖、避免生冷。']);
+
+  if(regular.cls === 'bad') out.push(['warn','📉',`周期波动 <b>±${round1(regular.sd)} 天</b>，规律性偏差。作息、压力、体重变化都会影响，持续 3 个月以上建议就诊。`]);
+
+  // 延后提醒
+  if(A.last && !A.inPeriod){
+    const late = diffDays(A.today, addDays(parseYmd(A.last.start), avgCycle));
+    if(late > 7) out.push(['bad','⏰',`距离上次月经已 <b>${diffDays(A.today, parseYmd(A.last.start))} 天</b>，比平均周期延后 ${late} 天。排除怀孕后仍未来潮，建议就医。`]);
+    else if(late > 0) out.push(['info','⏰',`月经比预计延后 <b>${late} 天</b>，7 天内的波动通常属于正常范围。`]);
+  }
+
+  if(!out.length) out.push(['ok','✅','各项指标都在正常范围内，周期状态良好，继续保持记录习惯～']);
+
+  box.innerHTML = out.map(([cls, ico, txt]) =>
+    `<div class="alert ${cls}"><span class="ai">${ico}</span><span>${txt}</span></div>`).join('');
+}
+
+// 周期长度柱状图
+function renderCycleBars(A){
+  const box = document.getElementById('cycleBars');
+  const data = A.cycles.slice(-10);
+  if(!data.length){
+    box.innerHTML = `<div class="empty" style="width:100%"><span class="ei">📈</span>至少记录 2 次经期才能计算周期长度</div>`;
+    return;
+  }
+  const max = Math.max(40, ...data.map(d => d.len));
+  const bandTop = (1 - NORMAL_CYCLE[1] / max) * 100;
+  const bandBot = (1 - NORMAL_CYCLE[0] / max) * 100;
+  box.innerHTML =
+    `<div class="band" style="top:${bandTop}%;bottom:${100-bandBot}%"></div>` +
+    data.map(d => {
+      const abn = d.len < NORMAL_CYCLE[0] || d.len > NORMAL_CYCLE[1];
+      const h = Math.max(6, (d.len / max) * 100);
+      const md = parseYmd(d.to);
+      return `<div class="bar ${abn?'abn':''}">
+        <span class="bv">${d.len}</span>
+        <span class="bb" style="height:${h}%"></span>
+        <span class="bl">${md.getMonth()+1}/${md.getDate()}</span>
+      </div>`;
+    }).join('');
+}
+
+// 经期长度柱状图
+function renderLenBars(A){
+  const box = document.getElementById('lenBars');
+  const data = A.periods.slice(-10);
+  if(!data.length){
+    box.innerHTML = `<div class="empty" style="width:100%"><span class="ei">📊</span>还没有经期记录</div>`;
+    return;
+  }
+  const max = Math.max(10, ...data.map(d => d.length));
+  const bandTop = (1 - NORMAL_LEN[1] / max) * 100;
+  const bandBot = (1 - NORMAL_LEN[0] / max) * 100;
+  box.innerHTML =
+    `<div class="band" style="top:${bandTop}%;bottom:${100-bandBot}%"></div>` +
+    data.map(p => {
+      const abn = p.length < NORMAL_LEN[0] || p.length > NORMAL_LEN[1];
+      const h = Math.max(6, (p.length / max) * 100);
+      const md = parseYmd(p.start);
+      return `<div class="bar ${abn?'abn':''}">
+        <span class="bv">${p.length}</span>
+        <span class="bb" style="height:${h}%"></span>
+        <span class="bl">${md.getMonth()+1}/${md.getDate()}</span>
+      </div>`;
+    }).join('');
+}
+
+// 经量热力图：每次经期一行，每天一个色块
+function renderHeat(A){
+  const box = document.getElementById('heatBox');
+  const data = A.periods.slice(-8).reverse();
+  if(!data.length){
+    box.innerHTML = `<div class="empty"><span class="ei">💧</span>还没有经量记录</div>`;
+    return;
+  }
+  box.innerHTML = data.map(p => {
+    const s = parseYmd(p.start);
+    const cells = [];
+    for(let i = 0; i < p.length; i++){
+      const ds = ymd(addDays(s, i));
+      const f = (state.records[ds] && state.records[ds].flow) || 0;
+      const c = f > 0 ? FLOW_LEVELS[f].c : 'var(--line)';
+      cells.push(`<i style="background:${c}" title="${ds} ${f>0?FLOW_LEVELS[f].t:'无'}"></i>`);
+    }
+    return `<div class="heat-row">
+      <span class="hl">${s.getMonth()+1}/${s.getDate()}</span>
+      <span class="hs">${cells.join('')}</span>
+      <span class="hr">${p.flowSum}</span>
+    </div>`;
+  }).join('');
+}
+
+// 痛经折线图
+function renderPainChart(A){
+  const svg = document.getElementById('painChart');
+  const data = A.periods.slice(-10);
+  if(data.length < 1){
+    svg.innerHTML = `<text x="160" y="60" text-anchor="middle" fill="#c6c1cd" font-size="12">还没有痛经记录</text>`;
+    return;
+  }
+  const W = 320, H = 120, padL = 26, padR = 10, padT = 12, padB = 22;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const n = data.length;
+  const x = i => n === 1 ? padL + iw/2 : padL + (i / (n - 1)) * iw;
+  const y = v => padT + (1 - v / 3) * ih;
+
+  const gridLines = [0,1,2,3].map(v =>
+    `<line x1="${padL}" y1="${y(v)}" x2="${W-padR}" y2="${y(v)}" stroke="#f0ebef" stroke-width="1"/>
+     <text x="${padL-6}" y="${y(v)+3}" text-anchor="end" fill="#c6c1cd" font-size="8">${PAIN_LEVELS[v].t}</text>`
+  ).join('');
+
+  const pts = data.map((p, i) => `${x(i)},${y(p.painMax)}`).join(' ');
+  const area = `${padL},${y(0)} ${pts} ${x(n-1)},${y(0)}`;
+  const dots = data.map((p, i) => {
+    const md = parseYmd(p.start);
+    return `<circle cx="${x(i)}" cy="${y(p.painMax)}" r="3.5" fill="${PAIN_LEVELS[p.painMax].c}" stroke="#fff" stroke-width="1.5"/>
+      <text x="${x(i)}" y="${H-6}" text-anchor="middle" fill="#c6c1cd" font-size="8">${md.getMonth()+1}/${md.getDate()}</text>`;
+  }).join('');
+
+  svg.innerHTML = `${gridLines}
+    <polygon points="${area}" fill="rgba(242,66,110,.10)"/>
+    <polyline points="${pts}" fill="none" stroke="#f2426e" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}`;
+}
+
+// 症状统计
+function renderSymptoms(){
+  const box = document.getElementById('symList');
+  const counter = {};
+  Object.values(state.records).forEach(r => {
+    (r.syms || []).forEach(s => { counter[s] = (counter[s] || 0) + 1; });
+  });
+  const list = Object.entries(counter).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  if(!list.length){
+    box.innerHTML = `<div class="empty"><span class="ei">🤒</span>还没有症状记录</div>`;
+    return;
+  }
+  const max = list[0][1];
+  box.innerHTML = list.map(([name, cnt]) =>
+    `<div class="sym"><span class="sn">${name}</span>
+      <span class="sbar"><i style="width:${(cnt/max*100).toFixed(0)}%"></i></span>
+      <span class="sc">${cnt}天</span></div>`).join('');
+}
+
+// 历史周期列表
+function renderHistory(A){
+  const box = document.getElementById('histList');
+  const sub = document.getElementById('histSub');
+  const periods = [...A.periods].reverse();
+  sub.textContent = periods.length ? `共 ${periods.length} 次` : '暂无';
+  if(!periods.length){
+    box.innerHTML = `<div class="empty"><span class="ei">📖</span>还没有经期记录</div>`;
+    return;
+  }
+  const cycleMap = {};
+  A.cycles.forEach(c => { cycleMap[c.to] = c.len; });
+
+  box.innerHTML = periods.map(p => {
+    const s = parseYmd(p.start), e = parseYmd(p.end);
+    const cyc = cycleMap[p.start];
+    const flowText = FLOW_LEVELS[Math.round(p.flowAvg) || 1].t;
+    return `<div class="h">
+      <div class="hd">
+        <div class="h1">${s.getMonth()+1}/${s.getDate()}</div>
+        <div class="h2">至 ${e.getMonth()+1}/${e.getDate()}</div>
+      </div>
+      <div class="hm">
+        <span>经期 <b>${p.length}天</b></span>
+        <span>周期 <b>${cyc ? cyc + '天' : '—'}</b></span>
+        <span>经量 <b style="color:${FLOW_LEVELS[Math.round(p.flowAvg)||1].c}">${flowText}</b></span>
+        <span>痛感 <b style="color:${PAIN_LEVELS[p.painMax].c}">${PAIN_LEVELS[p.painMax].t}</b></span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* =========================================================
+   渲染：我的页
+   ========================================================= */
+function renderMe(){
+  document.getElementById('setCycle').textContent = state.settings.cycle + ' 天';
+  document.getElementById('setPeriod').textContent = state.settings.period + ' 天';
+  document.getElementById('setWindow').textContent = state.settings.window + ' 次';
+  const n = Object.keys(state.records).length;
+  document.getElementById('dataSub').textContent = n ? `共 ${n} 条记录` : '暂无数据';
+}
+
+/* =========================================================
+   记录弹层
+   ========================================================= */
+function openSheet(dateStr){
+  // 未来的日期无从回忆，禁止记录，避免污染周期分析
+  if(dateStr > todayStr()){ toast('还不能记录未来的日期哦'); return; }
+  const d = parseYmd(dateStr);
+  // flow 初始为 null＝尚未选择，强制用户显式选择，避免误存「没来」
+  editing = {
+    date: dateStr,
+    draft: { flow:null, pain:0, color:'', clot:0, mood:'', syms:[], note:'', ...(state.records[dateStr] || {}) }
+  };
+  document.getElementById('sheetDate').innerHTML =
+    `${d.getMonth()+1}月${d.getDate()}日 <small>${WEEK_CN[d.getDay()]}${dateStr === todayStr() ? ' · 今天' : ''}</small>`;
+  document.getElementById('btnDel').style.display = state.records[dateStr] ? 'block' : 'none';
+  renderSheet();
+  document.getElementById('mask').classList.add('on');
+  document.getElementById('sheet').classList.add('on');
+  document.body.style.overflow = 'hidden';   // 锁住背景滚动
+}
+function closeSheet(){
+  document.getElementById('mask').classList.remove('on');
+  document.getElementById('sheet').classList.remove('on');
+  document.body.style.overflow = '';
+  editing = { date:null, draft:null };
+}
+
+function renderSheet(){
+  const d = editing.draft;
+
+  // 经量
+  document.getElementById('optFlow').innerHTML = FLOW_LEVELS.map(f =>
+    `<div class="opt lv ${d.flow===f.v?'on':''}" data-k="flow" data-v="${f.v}">
+      ${f.v===0 ? `<span class="oi">⚪️</span>` : `<span class="lvbar" style="background:${f.c}"></span>`}
+      <span class="ot">${f.t}</span>
+    </div>`).join('');
+
+  // 痛经
+  document.getElementById('optPain').innerHTML = PAIN_LEVELS.map(p =>
+    `<div class="opt ${d.pain===p.v?'on':''}" data-k="pain" data-v="${p.v}">
+      <span class="oi">${p.i}</span><span class="ot">${p.t}</span>
+    </div>`).join('');
+
+  // 颜色
+  document.getElementById('optColor').innerHTML = COLORS.map(c =>
+    `<div class="opt ${d.color===c.v?'on':''}" data-k="color" data-v="${c.v}">
+      <span class="oi">${c.i}</span><span class="ot">${c.t}</span>
+    </div>`).join('');
+
+  // 血块
+  document.getElementById('optClot').innerHTML = CLOTS.map(c =>
+    `<div class="opt ${d.clot===c.v?'on':''}" data-k="clot" data-v="${c.v}">
+      <span class="oi">${c.i}</span><span class="ot">${c.t}</span>
+    </div>`).join('');
+
+  // 心情
+  document.getElementById('optMood').innerHTML = MOODS.map(m =>
+    `<div class="opt ${d.mood===m.v?'on':''}" data-k="mood" data-v="${m.v}">
+      <span class="oi">${m.i}</span><span class="ot">${m.t}</span>
+    </div>`).join('');
+
+  // 症状
+  document.getElementById('optSym').innerHTML = SYMPTOMS.map(s =>
+    `<div class="chip ${d.syms.includes(s)?'on':''}" data-sym="${s}">${s}</div>`).join('');
+
+  document.getElementById('optNote').value = d.note || '';
+
+  // 没来月经时隐藏经血相关字段
+  const bleeding = d.flow > 0;
+  document.getElementById('fldColor').classList.toggle('hidden', !bleeding);
+  document.getElementById('fldClot').classList.toggle('hidden', !bleeding);
+
+}
+
+// 弹层内所有选项走事件委托：只绑定一次，重绘不会丢监听，也不会重置正在输入的备注
+document.getElementById('sheet').addEventListener('click', e => {
+  if(!editing.draft) return;
+
+  const opt = e.target.closest('.opt');
+  if(opt && opt.dataset.k){
+    const k = opt.dataset.k;
+    const v = (k === 'flow' || k === 'pain' || k === 'clot') ? Number(opt.dataset.v) : opt.dataset.v;
+    const optional = (k === 'color' || k === 'mood');            // 选填项可再次点击取消
+    const next = (editing.draft[k] === v && optional) ? '' : v;
+    editing = { ...editing, draft: { ...editing.draft, [k]: next } };
+    renderSheet();
+    return;
+  }
+  const chip = e.target.closest('.chip');
+  if(chip && chip.dataset.sym){
+    const s = chip.dataset.sym;
+    const syms = editing.draft.syms.includes(s)
+      ? editing.draft.syms.filter(x => x !== s)
+      : [...editing.draft.syms, s];
+    editing = { ...editing, draft: { ...editing.draft, syms } };
+    renderSheet();
+  }
+});
+// 备注实时写入草稿，避免点选其他项触发重绘时丢失
+document.getElementById('optNote').addEventListener('input', e => {
+  if(editing.draft) editing = { ...editing, draft: { ...editing.draft, note: e.target.value } };
+});
+
+/* =========================================================
+   示例数据
+   ========================================================= */
+function buildDemo(){
+  const records = {};
+  const base = new Date();
+  base.setHours(0,0,0,0);
+  // 造 6 个周期，周期长度略有波动
+  const cycleLens = [29, 27, 31, 28, 26, 30];
+  const periodLens = [5, 6, 4, 5, 7, 5];
+  const flowPattern = [
+    [2,4,5,3,1],
+    [1,3,4,4,2,1],
+    [2,4,3,1],
+    [3,5,4,2,1],
+    [1,2,4,4,3,2,1],
+    [2,4,5,3,1]
+  ];
+  const painPattern = [1,2,0,3,2,1];
+  const symPool = [['腰酸','乏力'],['小腹坠胀','长痘'],['乳房胀痛'],['腰酸','头痛','失眠'],['乏力','食欲大增'],['腰酸']];
+
+  // 从今天往前推：最后一次经期开始日 ≈ 今天 - 20 天
+  let start = addDays(base, -20);
+  const starts = [start];
+  for(let i = cycleLens.length - 1; i >= 1; i--){
+    start = addDays(start, -cycleLens[i]);
+    starts.unshift(start);
+  }
+  starts.forEach((s, idx) => {
+    const flows = flowPattern[idx];
+    for(let i = 0; i < periodLens[idx]; i++){
+      const ds = ymd(addDays(s, i));
+      records[ds] = {
+        flow: flows[i] || 1,
+        pain: i <= 1 ? painPattern[idx] : Math.max(0, painPattern[idx] - 1),
+        color: i === 0 ? 'bright' : (i >= periodLens[idx]-1 ? 'brown' : 'dark'),
+        clot: flows[i] >= 4 ? 1 : 0,
+        mood: i <= 1 ? 'tired' : 'calm',
+        syms: i === 0 ? symPool[idx] : (i === 1 ? symPool[idx].slice(0,1) : []),
+        note: i === 0 ? '第一天，注意保暖' : ''
+      };
+    }
+  });
+  return records;
+}
+
+/* =========================================================
+   工具：toast / 导入导出
+   ========================================================= */
+let toastTimer = null;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('on'), 1900);
+}
+
+function exportData(){
+  const payload = { app:'period-tracker', version:1, exportedAt:new Date().toISOString(), ...state };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `经期记录备份-${todayStr()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('已导出备份文件');
+}
+
+function importData(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const parsed = JSON.parse(String(reader.result));
+      if(!parsed || typeof parsed !== 'object' || !parsed.records || typeof parsed.records !== 'object'){
+        toast('文件格式不正确'); return;
+      }
+      // 校验并合并（导入的数据覆盖同日记录）
+      const clean = {};
+      Object.entries(parsed.records).forEach(([k, v]) => {
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(k) || !v || typeof v !== 'object') return;
+        clean[k] = {
+          flow: Math.min(5, Math.max(0, Number(v.flow) || 0)),
+          pain: Math.min(3, Math.max(0, Number(v.pain) || 0)),
+          color: typeof v.color === 'string' ? v.color : '',
+          clot: Math.min(2, Math.max(0, Number(v.clot) || 0)),
+          mood: typeof v.mood === 'string' ? v.mood : '',
+          syms: Array.isArray(v.syms) ? v.syms.filter(s => typeof s === 'string') : [],
+          note: typeof v.note === 'string' ? v.note.slice(0, 500) : ''
+        };
+      });
+      const cnt = Object.keys(clean).length;
+      if(!cnt){ toast('文件里没有有效记录'); return; }
+      saveState({
+        records: { ...state.records, ...clean },
+        settings: { ...state.settings, ...(parsed.settings || {}) }
+      });
+      toast(`已导入 ${cnt} 条记录`);
+    }catch(e){
+      console.error(e);
+      toast('解析失败，请确认是本工具导出的 JSON');
+    }
+  };
+  reader.onerror = () => toast('文件读取失败');
+  reader.readAsText(file);
+}
+
+/* =========================================================
+   事件绑定
+   ========================================================= */
+// tab 切换
+document.querySelectorAll('.tabbar .tb').forEach(tb => tb.addEventListener('click', () => {
+  document.querySelectorAll('.tabbar .tb').forEach(x => x.classList.remove('on'));
+  tb.classList.add('on');
+  ['cal','stat','me'].forEach(p =>
+    document.getElementById('page-' + p).classList.toggle('hidden', p !== tb.dataset.tab));
+  window.scrollTo({ top:0, behavior:'smooth' });
+}));
+
+// 月份切换
+document.getElementById('prevM').addEventListener('click', () => {
+  viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1);
+  renderCalendar(analyze());
+});
+document.getElementById('nextM').addEventListener('click', () => {
+  viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1);
+  renderCalendar(analyze());
+});
+
+document.getElementById('btnToday').addEventListener('click', () => openSheet(todayStr()));
+document.getElementById('mask').addEventListener('click', closeSheet);
+document.getElementById('sheetClose').addEventListener('click', closeSheet);
+
+// 键盘操作（PC）：Esc 关闭弹层，左右方向键切换月份
+document.addEventListener('keydown', e => {
+  const sheetOpen = document.getElementById('sheet').classList.contains('on');
+  if(e.key === 'Escape' && sheetOpen){ closeSheet(); return; }
+  if(sheetOpen || e.target.matches('input,textarea')) return;
+  if(e.key === 'ArrowLeft') document.getElementById('prevM').click();
+  if(e.key === 'ArrowRight') document.getElementById('nextM').click();
+});
+
+document.getElementById('btnSave').addEventListener('click', () => {
+  if(editing.draft.flow === null || editing.draft.flow === undefined){
+    toast('请先选择今天是否来月经');
+    return;
+  }
+  const d = { ...editing.draft, note: document.getElementById('optNote').value.trim() };
+  // 没来月经时清掉经血相关字段
+  const rec = d.flow > 0 ? d : { ...d, color:'', clot:0 };
+  putRecord(editing.date, rec);
+  closeSheet();
+  toast('已保存');
+});
+document.getElementById('btnDel').addEventListener('click', () => {
+  if(!confirm('确定删除这天的记录吗？')) return;
+  removeRecord(editing.date);
+  closeSheet();
+  toast('已删除');
+});
+
+// 设置步进
+document.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => {
+  const [key, deltaStr] = b.dataset.step.split(',');
+  const delta = Number(deltaStr);
+  const limits = { cycle:[20,45], period:[2,12], window:[3,12] };
+  const [min, max] = limits[key];
+  const next = Math.min(max, Math.max(min, state.settings[key] + delta));
+  patchSettings({ [key]: next });
+}));
+
+document.getElementById('btnExport').addEventListener('click', exportData);
+document.getElementById('btnImport').addEventListener('click', () => document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0];
+  if(f) importData(f);
+  e.target.value = '';
+});
+document.getElementById('btnDemo').addEventListener('click', () => {
+  if(Object.keys(state.records).length && !confirm('载入示例数据会覆盖同日期的记录，继续吗？')) return;
+  saveState({ ...state, records: { ...state.records, ...buildDemo() } });
+  viewMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  toast('已载入 6 个周期的示例数据');
+});
+document.getElementById('btnClear').addEventListener('click', () => {
+  if(!confirm('确定清空全部记录吗？此操作不可恢复，建议先导出备份。')) return;
+  if(!confirm('再次确认：所有经期记录都会被删除。')) return;
+  saveState({ ...state, records:{} });
+  toast('已清空');
+});
+
+/* =========================================================
+   总渲染
+   ========================================================= */
+function renderAll(){
+  const A = analyze();
+  renderHero(A);
+  renderCalendar(A);
+  renderQuick();
+  renderPredict(A);
+  renderStat(A);
+  renderMe();
+}
+renderAll();
+</script>
+
+<script>
+  // 注册 Service Worker（仅在 https / localhost 等安全上下文可用，其它环境静默跳过）
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js').catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
